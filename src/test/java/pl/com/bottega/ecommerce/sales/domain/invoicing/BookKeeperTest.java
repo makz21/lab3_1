@@ -67,8 +67,7 @@ public class BookKeeperTest {
     }
 
     @Test
-    public void
-            () {
+    public void invoiceRequestWithTwoItemsShouldInvokeCalculateTaxTwoTimes() {
         Invoice invoice = bookKeeper.issuance(invoiceRequest3,taxPolicy);
         verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
     }
