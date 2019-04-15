@@ -1,6 +1,7 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
@@ -11,9 +12,10 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class BookKeeperTest {
 
@@ -50,6 +52,12 @@ public class BookKeeperTest {
 
         when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(new Money(new BigDecimal(300)),""));
 
+    }
+
+    @Test
+    public void invoiceRequestWithOneItemShouldReturnInvoiceWithOneInvoiceLine() {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest2,taxPolicy);
+        assertThat(invoice.getItems().size(), is(1));
     }
 
 }
