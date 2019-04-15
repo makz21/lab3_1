@@ -71,4 +71,10 @@ public class BookKeeperTest {
         Invoice invoice = bookKeeper.issuance(invoiceRequest3,taxPolicy);
         verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
     }
+
+    @Test
+    public void invoiceRequestWithZeroItemsShouldReturnInvoiceWithNoInvoiceLine() {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest1,taxPolicy);
+        assertThat(invoice.getItems().size(), is(0));
+    }
 }
