@@ -77,4 +77,10 @@ public class BookKeeperTest {
         Invoice invoice = bookKeeper.issuance(invoiceRequest1,taxPolicy);
         assertThat(invoice.getItems().size(), is(0));
     }
+
+    @Test
+    public void invoiceRequestWithZeroItemsShouldInvokeCalculateTaxZeroTimes() {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest1,taxPolicy);
+        verify(taxPolicy, times(0)).calculateTax(any(ProductType.class), any(Money.class));
+    }
 }
