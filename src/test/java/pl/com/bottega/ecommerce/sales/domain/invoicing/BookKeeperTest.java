@@ -66,4 +66,10 @@ public class BookKeeperTest {
         verify(taxPolicy, times(1)).calculateTax(any(ProductType.class), any(Money.class));
     }
 
+    @Test
+    public void
+            () {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest3,taxPolicy);
+        verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
+    }
 }
