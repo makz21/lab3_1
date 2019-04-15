@@ -13,9 +13,9 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 import java.math.BigDecimal;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class BookKeeperTest {
 
@@ -58,6 +58,12 @@ public class BookKeeperTest {
     public void invoiceRequestWithOneItemShouldReturnInvoiceWithOneInvoiceLine() {
         Invoice invoice = bookKeeper.issuance(invoiceRequest2,taxPolicy);
         assertThat(invoice.getItems().size(), is(1));
+    }
+
+    @Test
+    public void invoiceRequestWithOneItemShouldInvokeCalculateTaxOneTime() {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest2,taxPolicy);
+        verify(taxPolicy, times(1)).calculateTax(any(ProductType.class), any(Money.class));
     }
 
 }
