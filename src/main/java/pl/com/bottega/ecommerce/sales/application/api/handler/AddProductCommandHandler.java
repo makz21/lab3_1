@@ -32,16 +32,16 @@ public class AddProductCommandHandler implements CommandHandler<AddProductComman
 
 
 	private ReservationRepository reservationRepository;
-	
+
 
 	private ProductRepository productRepository;
-	
+
 
 	private SuggestionService suggestionService;
-	
+
 
 	private ClientRepository clientRepository;
-	
+
 
 	private SystemContext systemContext;
 
@@ -57,21 +57,21 @@ public class AddProductCommandHandler implements CommandHandler<AddProductComman
 	@Override
 	public Void handle(AddProductCommand command) {
 		Reservation reservation = reservationRepository.load(command.getOrderId());
-		
+
 		Product product = productRepository.load(command.getProductId());
-		
+
 		if (! product.isAvailable()){
-			Client client = loadClient();	
+			Client client = loadClient();
 			product = suggestionService.suggestEquivalent(product, client);
 		}
-			
+
 		reservation.add(product, command.getQuantity());
-		
+
 		reservationRepository.save(reservation);
-		
+
 		return null;
 	}
-	
+
 	private Client loadClient() {
 		return clientRepository.load(systemContext.getSystemUser().getClientId());
 	}

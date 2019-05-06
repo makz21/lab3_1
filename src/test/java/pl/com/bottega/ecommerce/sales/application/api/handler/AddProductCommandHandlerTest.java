@@ -1,9 +1,11 @@
 package pl.com.bottega.ecommerce.sales.application.api.handler;
 
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
-import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.client.ClientRepository;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
@@ -12,14 +14,18 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductRepository;
 import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
+import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
+
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AddProductCommandHandlerTest {
 
     private AddProductCommandHandler addProductCommandHandler;
+    @Mock
     private AddProductCommand command;
     @Mock
     private ReservationRepository reservationRepository;
@@ -37,8 +43,8 @@ public class AddProductCommandHandlerTest {
     private Product product;
 
     @Before
-    public void init(){
-        command = new AddProductCommand(Id.generate(), new Id("1"), 1);
+    public void initalize(){
+        command = new AddProductCommand(Id.generate(), Id.generate(), 1);
         Client client = new Client();
         when(product.isAvailable()).thenReturn(true);
         when(reservationRepository.load(any())).thenReturn(reservation);
@@ -48,4 +54,10 @@ public class AddProductCommandHandlerTest {
                 suggestionService, clientRepository, systemContext);
     }
 
+
+    @Test
+    public void handleShouldReturnOneReservation(){
+        addProductCommandHandler.handle(command);
+        verify(reservationRepository, times(1)).load(any(Id.class));
+    }
 }
