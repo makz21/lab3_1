@@ -1,5 +1,6 @@
 package pl.com.bottega.ecommerce.sales.application.api.handler;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,7 @@ import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
 import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 
-
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -71,5 +72,10 @@ public class AddProductCommandHandlerTest {
     public void handleShouldCallSaveProductOnce(){
         addProductCommandHandler.handle(command);
         verify(reservationRepository,times(1)).save(any(Reservation.class));
+    }
+
+    @Test
+    public void testThatProductIsAvailable(){
+        Assert.assertThat(product.isAvailable(),is(true));
     }
 }
