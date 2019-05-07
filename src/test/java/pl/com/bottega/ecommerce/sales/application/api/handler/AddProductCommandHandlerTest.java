@@ -5,17 +5,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.client.ClientRepository;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductRepository;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
+import pl.com.bottega.ecommerce.sharedkernel.Money;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
 import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
+import pl.com.bottega.ecommerce.system.application.SystemUser;
+
+import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -26,7 +33,7 @@ import static org.mockito.Mockito.*;
 public class AddProductCommandHandlerTest {
 
     private AddProductCommandHandler addProductCommandHandler;
-    @Mock
+
     private AddProductCommand command;
     @Mock
     private ReservationRepository reservationRepository;
@@ -38,19 +45,31 @@ public class AddProductCommandHandlerTest {
     private ClientRepository clientRepository;
     @Mock
     private SystemContext systemContext;
-    @Mock
+
     private Reservation reservation;
-    @Mock
     private Product product;
+    private Id clientId;
+    private Id orderId;
+    private Id productId;
 
     @Before
     public void initalize(){
-        command = new AddProductCommand(Id.generate(), Id.generate(), 1);
+
+        clientId = Id.generate();
+        orderId = Id.generate();
+        productId = Id.generate();
+        command = new AddProductCommand(orderId,productId, 1);
+        product = new Product(orderId, Money.ZERO, "Product1", ProductType.STANDARD);
         Client client = new Client();
+        ClientData clientData = new ClientData(clientId, "Client");
+        reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED, clientData, new Date());
+        when(reservationRepository.load(orderId))
+                .thenReturn(reservation);
         when(product.isAvailable()).thenReturn(true);
-        when(reservationRepository.load(any())).thenReturn(reservation);
-        when(productRepository.load(any())).thenReturn(product);
-        when(suggestionService.suggestEquivalent(product, client)).thenReturn(product);
+        when(productRepository.load(productId))
+                .thenReturn(this.product);
+        when(suggestionService.suggestEquivalent(product, client))
+                .thenReturn(product);
         addProductCommandHandler = new AddProductCommandHandler(reservationRepository, productRepository,
                 suggestionService, clientRepository, systemContext);
     }
