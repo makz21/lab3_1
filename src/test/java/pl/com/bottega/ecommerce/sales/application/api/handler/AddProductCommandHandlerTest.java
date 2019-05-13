@@ -1,14 +1,13 @@
 package pl.com.bottega.ecommerce.sales.application.api.handler;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
+import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.client.ClientRepository;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
@@ -19,13 +18,10 @@ import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
-import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 import pl.com.bottega.ecommerce.system.application.SystemUser;
 
 import java.util.Date;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -62,14 +58,12 @@ public class AddProductCommandHandlerTest {
         product = new Product(orderId, Money.ZERO, "Product1", ProductType.STANDARD);
         Client client = new Client();
         ClientData clientData = new ClientData(clientId, "Client");
-        reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED, clientData, new Date());
-        when(reservationRepository.load(orderId))
-                .thenReturn(reservation);
-        when(product.isAvailable()).thenReturn(true);
-        when(productRepository.load(productId))
-                .thenReturn(this.product);
-        when(suggestionService.suggestEquivalent(product, client))
-                .thenReturn(product);
+        reservation = new Reservation(orderId, Reservation.ReservationStatus.OPENED, clientData, new Date());
+        when(reservationRepository.load(orderId)).thenReturn(reservation);
+        when(productRepository.load(productId)).thenReturn(this.product);
+        when(suggestionService.suggestEquivalent(product, client)).thenReturn(product);
+        when(systemContext.getSystemUser()).thenReturn(new SystemUser(clientId));
+        when(clientRepository.load(clientId)).thenReturn(client);
         addProductCommandHandler = new AddProductCommandHandler(reservationRepository, productRepository,
                 suggestionService, clientRepository, systemContext);
     }
@@ -94,7 +88,10 @@ public class AddProductCommandHandlerTest {
     }
 
     @Test
-    public void testThatProductIsAvailable(){
-        Assert.assertThat(product.isAvailable(),is(true));
+    public void testThatSuggestionServiceShouldNotBeCalledWhenProductIsAvailable(){
+        addProductCommandHandler.handle(command);
+        verify(suggestionService,times(0)).suggestEquivalent(any(Product.class),any(Client.class));
+
     }
+
 }
